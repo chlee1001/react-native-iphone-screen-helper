@@ -1,6 +1,6 @@
 {
   "name": "react-native-iphone-screen-helper",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "A library to help you design your react-native app for the iPhone",
   "main": "index.js",
   "types": "index.d.ts",
@@ -17,6 +17,8 @@
     "iphone-x",
     "iphoneX",
     "iphone-notch",
+    "iphone-dynamic",
+    "iphone-dynamic-island",
     "iphone",
     "stylesheet"
   ],
