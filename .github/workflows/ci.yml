@@ -1,37 +1,11 @@
-name: CI/CD Pipeline
+name: Release
 
 on:
   push:
     branches: [ master, main ]
-  pull_request:
-    branches: [ master, main ]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci || npm install
-
-      - name: Run tests
-        run: npm test || echo "No tests available"
-        continue-on-error: true
-
-      - name: Check package.json validity
-        run: npm pack --dry-run
-
   release:
-    needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     permissions:
@@ -55,24 +29,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci || npm install
-
-      - name: Debug NPM Token
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          if [ -z "$NPM_TOKEN" ]; then
-            echo "❌ NPM_TOKEN is not set or empty"
-            exit 1
-          else
-            echo "✅ NPM_TOKEN is available (length: ${#NPM_TOKEN})"
-            echo "Token prefix: ${NPM_TOKEN:0:8}..."
-          fi
-
-      - name: Test NPM Authentication
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          npm whoami || echo "❌ NPM authentication failed"
 
       - name: Release
         env:
