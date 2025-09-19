@@ -1,0 +1,39 @@
+{
+  "branches": ["master", "main"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md",
+        "changelogTitle": "# Changelog\n\nAll notable changes to this project will be documented in this file."
+      }
+    ],
+    "@semantic-release/npm",
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["package.json", "CHANGELOG.md"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
+    "@semantic-release/github"
+  ],
+  "preset": "conventionalcommits",
+  "presetConfig": {
+    "types": [
+      { "type": "feat", "section": "🚀 새로운 기능 / Features" },
+      { "type": "fix", "section": "🐛 버그 수정 / Bug Fixes" },
+      { "type": "docs", "section": "📚 문서 / Documentation" },
+      { "type": "style", "section": "💄 스타일 / Styles" },
+      { "type": "refactor", "section": "♻️ 리팩토링 / Code Refactoring" },
+      { "type": "perf", "section": "⚡ 성능 개선 / Performance Improvements" },
+      { "type": "test", "section": "🧪 테스트 / Tests" },
+      { "type": "build", "section": "🏗️ 빌드 시스템 / Build System" },
+      { "type": "ci", "section": "🔧 CI/CD", "hidden": true },
+      { "type": "chore", "section": "🔧 기타 / Chores", "hidden": true },
+      { "type": "revert", "section": "⏪ 되돌리기 / Reverts" }
+    ]
+  }
+}

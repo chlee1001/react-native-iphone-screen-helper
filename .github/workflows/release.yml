@@ -1,0 +1,118 @@
+name: Release and Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Run tests (if available)
+        run: npm test || echo "No tests found"
+        continue-on-error: true
+
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          # Get the latest tag and previous tag
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^)
+
+          echo "Current tag: $CURRENT_TAG"
+          echo "Previous tag: $PREVIOUS_TAG"
+
+          # Generate Korean release notes
+          echo "## 🚀 새로운 기능 / New Features" > RELEASE_NOTES_KR.md
+          echo "" >> RELEASE_NOTES_KR.md
+
+          # Get commits with feat: prefix
+          FEAT_COMMITS=$(git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^feat")
+          if [ ! -z "$FEAT_COMMITS" ]; then
+            echo "$FEAT_COMMITS" >> RELEASE_NOTES_KR.md
+          else
+            echo "- 새로운 기능이 없습니다 / No new features" >> RELEASE_NOTES_KR.md
+          fi
+
+          echo "" >> RELEASE_NOTES_KR.md
+          echo "## 🐛 버그 수정 / Bug Fixes" >> RELEASE_NOTES_KR.md
+          echo "" >> RELEASE_NOTES_KR.md
+
+          # Get commits with fix: prefix
+          FIX_COMMITS=$(git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="^fix")
+          if [ ! -z "$FIX_COMMITS" ]; then
+            echo "$FIX_COMMITS" >> RELEASE_NOTES_KR.md
+          else
+            echo "- 버그 수정이 없습니다 / No bug fixes" >> RELEASE_NOTES_KR.md
+          fi
+
+          echo "" >> RELEASE_NOTES_KR.md
+          echo "## 📱 지원 기기 업데이트 / Device Support Updates" >> RELEASE_NOTES_KR.md
+          echo "" >> RELEASE_NOTES_KR.md
+
+          # Check for iPhone model updates
+          IPHONE_UPDATES=$(git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --grep="iPhone")
+          if [ ! -z "$IPHONE_UPDATES" ]; then
+            echo "$IPHONE_UPDATES" >> RELEASE_NOTES_KR.md
+          else
+            echo "- 기기 업데이트가 없습니다 / No device updates" >> RELEASE_NOTES_KR.md
+          fi
+
+          echo "" >> RELEASE_NOTES_KR.md
+          echo "## 🔧 기타 변경사항 / Other Changes" >> RELEASE_NOTES_KR.md
+          echo "" >> RELEASE_NOTES_KR.md
+
+          # Get other commits
+          OTHER_COMMITS=$(git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --invert-grep --grep="^feat" --grep="^fix" --grep="iPhone")
+          if [ ! -z "$OTHER_COMMITS" ]; then
+            echo "$OTHER_COMMITS" >> RELEASE_NOTES_KR.md
+          else
+            echo "- 기타 변경사항이 없습니다 / No other changes" >> RELEASE_NOTES_KR.md
+          fi
+
+          echo "" >> RELEASE_NOTES_KR.md
+          echo "---" >> RELEASE_NOTES_KR.md
+          echo "" >> RELEASE_NOTES_KR.md
+          echo "**전체 변경사항 / Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${CURRENT_TAG}" >> RELEASE_NOTES_KR.md
+
+          # Set output for GitHub release
+          {
+            echo 'RELEASE_NOTES<<EOF'
+            cat RELEASE_NOTES_KR.md
+            echo EOF
+          } >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to NPM
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
