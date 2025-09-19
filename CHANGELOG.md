@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.1](https://github.com/chlee1001/react-native-iphone-screen-helper/compare/v2.2.0...v2.2.1) (2025-09-19)
+
+
+### 🐛 버그 수정 / Bug Fixes
+
+* correct plugin order for package.json version updates ([4e7e569](https://github.com/chlee1001/react-native-iphone-screen-helper/commit/4e7e56924c0a477a931027fb5da5f49f16f02979))
+
 ## [2.2.0](https://github.com/chlee1001/react-native-iphone-screen-helper/compare/v2.1.2...v2.2.0) (2025-09-19)
 
 
