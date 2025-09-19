@@ -159,6 +159,10 @@ export default StyleSheet.create({
 | iPhone16,5 | iPhone 16 Plus       | 430 x 932 (3x ~460ppi) |              59 |
 | iPhone17,1 | iPhone 16 Pro        | 402 x 874 (3x ~460ppi) |              59 |
 | iPhone17,2 | iPhone 16 Pro Max    | 440 x 956 (3x ~460ppi) |              62 |
+| iPhone18,1 | iPhone 17 Pro        | 402 x 874 (3x ~460ppi) |              59 |
+| iPhone18,2 | iPhone 17 Pro Max    | 440 x 956 (3x ~460ppi) |              62 |
+| iPhone18,3 | iPhone 17            | 402 x 874 (3x ~460ppi) |              59 |
+| iPhone18,4 | iPhone Air           | 420 x 912 (3x ~460ppi) |              59 |
 
 
 ## Licence ##
